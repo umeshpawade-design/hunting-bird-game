@@ -50,13 +50,16 @@ jobs:
         sed -i 's/^package.domain =.*/package.domain = org.jmd/' buildozer.spec
         sed -i 's/^source.include_exts =.*/source.include_exts = py,png,jpg,jpeg,kv,atlas,mp3,wav/' buildozer.spec
         
-        # SDK/NDK and License settings
+        # SDK/NDK Config
         sed -i 's/^#\? \?android.api =.*/android.api = 33/' buildozer.spec
         sed -i 's/^#\? \?android.ndk =.*/android.ndk = 25b/' buildozer.spec
         sed -i 's/^#\? \?android.accept_sdk_license =.*/android.accept_sdk_license = True/' buildozer.spec
         
-        # CRITICAL REFRESH: Undefined macro (libtoolize) issue ko fix karne ke liye
+        # SYSTEM-LEVEL LICENSE BYPASS: Buildozer ke shuru hone se pehle hi accept karwana
+        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n89354db274b065e119d62bfc40d48d65227d860d\nd56f5187479451e40a6137e7d6199bf9956d9e76\n84333f8a63b6825ea9c5514f83c2829b004d1fee" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        
         export PATH="/usr/bin:/usr/local/bin:$PATH"
         
-        # Final build execution
+        # Non-interactive silent execution
         buildozer android debug
