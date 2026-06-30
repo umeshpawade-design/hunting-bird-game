@@ -26,7 +26,9 @@ jobs:
     - name: Extract and Clean Project Files
       run: |
         # Workflows folder ke andar se tar file ko main folder me move karna
-        cp .github/workflows/ReplitExport-umeshpawade007.tar.gz .
+        if [ -f ".github/workflows/ReplitExport-umeshpawade007.tar.gz" ]; then
+          cp .github/workflows/ReplitExport-umeshpawade007.tar.gz .
+        fi
         
         # Fresh extraction
         tar -xzvf ReplitExport-umeshpawade007.tar.gz
@@ -38,7 +40,7 @@ jobs:
           mv hunting-bird-game/* .
         fi
         
-        # Cache aur purani atki hui files ka clean-up
+        # Cache clean-up
         rm -rf .buildozer buildozer.spec bin
         ls -la
 
@@ -51,8 +53,12 @@ jobs:
         sed -i 's/^source.include_exts =.*/source.include_exts = py,png,jpg,jpeg,kv,atlas,mp3,wav/' buildozer.spec
         sed -i 's/^#\? \?android.api =.*/android.api = 33/' buildozer.spec
         
-        export DEBIAN_FRONTEND=noninteractive
-        yes | buildozer android debug
+        # Android SDK Licenses ko pehle hi automatically accept karna
+        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        echo -e "\n89354db274b065e119d62bfc40d48d65227d860d\nd56f5187479451e40a6137e7d6199bf9956d9e76\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        
+        # Fresh build
+        buildozer android debug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
