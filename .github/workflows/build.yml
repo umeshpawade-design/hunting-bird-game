@@ -21,26 +21,22 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libsqlite3-dev libgdbm-dev libssl-dev libffi-dev libbz2-dev libreadline-dev
         pip install --upgrade pip
-        pip install --upgrade buildozer cython
+        pip install --upgrade "buildozer<1.6.0" cython
 
     - name: Extract and Clean Project Files
       run: |
-        # Workflows folder ke andar se tar file ko main folder me move karna
         if [ -f ".github/workflows/ReplitExport-umeshpawade007.tar.gz" ]; then
           cp .github/workflows/ReplitExport-umeshpawade007.tar.gz .
         fi
         
-        # Fresh extraction
         tar -xzvf ReplitExport-umeshpawade007.tar.gz
         
-        # Subfolder management
         if [ -d "umeshpawade007" ]; then
           mv umeshpawade007/* .
         elif [ -d "hunting-bird-game" ]; then
           mv hunting-bird-game/* .
         fi
         
-        # Cache clean-up
         rm -rf .buildozer buildozer.spec bin
         ls -la
 
@@ -53,15 +49,8 @@ jobs:
         sed -i 's/^source.include_exts =.*/source.include_exts = py,png,jpg,jpeg,kv,atlas,mp3,wav/' buildozer.spec
         sed -i 's/^#\? \?android.api =.*/android.api = 33/' buildozer.spec
         
-        # Android SDK Licenses ko pehle hi automatically accept karna
-        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-        echo -e "\n89354db274b065e119d62bfc40d48d65227d860d\nd56f5187479451e40a6137e7d6199bf9956d9e76\n24333f8a63b6825ea9c5514f83c2829b004d1fee" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        # Purane sdkmanager path crash ko bypass karne ke liye legacy config options
+        sed -i 's/^#\? \?android.accept_sdk_license =.*/android.accept_sdk_license = True/' buildozer.spec
         
-        # Fresh build
+        # Non-interactive fresh build
         buildozer android debug
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: Hunting-Bird-APK
-        path: bin/*.apk
