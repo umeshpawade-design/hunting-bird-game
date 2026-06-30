@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout repository
@@ -19,9 +19,9 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libsqlite3-dev libgdbm-dev libssl-dev libffi-dev libbz2-dev libreadline-dev
+        sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libsqlite3-dev libgdbm-dev libssl-dev libffi-dev libbz2-dev libreadline-dev
         pip install --upgrade pip
-        pip install --upgrade "buildozer<1.6.0" cython
+        pip install "buildozer>=1.5.0" "cython<3.0.0"
 
     - name: Extract and Clean Project Files
       run: |
@@ -43,14 +43,20 @@ jobs:
     - name: Build with Buildozer
       run: |
         buildozer init
+        
+        # Application Config Injection
         sed -i 's/^title =.*/title = Hunting Bird/' buildozer.spec
         sed -i 's/^package.name =.*/package.name = huntingbird/' buildozer.spec
         sed -i 's/^package.domain =.*/package.domain = org.jmd/' buildozer.spec
         sed -i 's/^source.include_exts =.*/source.include_exts = py,png,jpg,jpeg,kv,atlas,mp3,wav/' buildozer.spec
-        sed -i 's/^#\? \?android.api =.*/android.api = 33/' buildozer.spec
         
-        # Purane sdkmanager path crash ko bypass karne ke liye legacy config options
+        # SDK/NDK and License settings
+        sed -i 's/^#\? \?android.api =.*/android.api = 33/' buildozer.spec
+        sed -i 's/^#\? \?android.ndk =.*/android.ndk = 25b/' buildozer.spec
         sed -i 's/^#\? \?android.accept_sdk_license =.*/android.accept_sdk_license = True/' buildozer.spec
         
-        # Non-interactive fresh build
+        # CRITICAL REFRESH: Undefined macro (libtoolize) issue ko fix karne ke liye
+        export PATH="/usr/bin:/usr/local/bin:$PATH"
+        
+        # Final build execution
         buildozer android debug
