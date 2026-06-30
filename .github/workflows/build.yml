@@ -1,4 +1,4 @@
-name: Build APK from Tarball
+name: Build APK from Nested Tarball
 
 on:
   workflow_dispatch:
@@ -23,15 +23,23 @@ jobs:
         pip install --upgrade pip
         pip install --upgrade buildozer cython
 
-    - name: Extract Project Files
+    - name: Extract and Clean Project Files
       run: |
+        # Workflows folder ke andar se tar file ko main folder me move karna
+        cp .github/workflows/ReplitExport-umeshpawade007.tar.gz .
+        
+        # Fresh extraction
         tar -xzvf ReplitExport-umeshpawade007.tar.gz
-        # Check folders inside and move them if nested
+        
+        # Subfolder management
         if [ -d "umeshpawade007" ]; then
           mv umeshpawade007/* .
         elif [ -d "hunting-bird-game" ]; then
           mv hunting-bird-game/* .
         fi
+        
+        # Cache aur purani atki hui files ka clean-up
+        rm -rf .buildozer buildozer.spec bin
         ls -la
 
     - name: Build with Buildozer
