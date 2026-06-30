@@ -1,4 +1,4 @@
-name: Build APK from Slingshot Empire Folder
+name: Fixed Slingshot Empire APK Build
 
 on:
   workflow_dispatch:
@@ -16,58 +16,63 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install Dependencies
+    - name: Install System Dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libsqlite3-dev libgdbm-dev libssl-dev libffi-dev libbz2-dev libreadline-dev
         pip install --upgrade pip
         pip install "buildozer>=1.5.0" "cython<3.0.0"
 
-    - name: Move Files to Root and Rename
+    - name: Move Files and Rename Entry Point
       run: |
-        # 1. slingshot-empire folder ke andar ki saari files ko main root par lana
+        # Folders se files root me lana
         if [ -d "slingshot-empire" ]; then
           cp -r slingshot-empire/* .
-          echo "Files copied from slingshot-empire folder!"
         fi
-        
-        # 2. Agar artifacts ke andar hai toh wahan se bhi check karna
         if [ -d "artifacts/slingshot-empire" ]; then
           cp -r artifacts/slingshot-empire/* .
         fi
 
-        # CRITICAL REPLIT FIX: capture_preview.py ko main.py banana jo Buildozer ko chahiye
+        # capture_preview.py ko main.py me badalna
         if [ -f "capture_preview.py" ]; then
           mv capture_preview.py main.py
-          echo "File successfully renamed to main.py"
         fi
 
-        # Safai karna taaki naya configuration shuru ho sake
+        # Purani files clear karna
         rm -rf .buildozer buildozer.spec bin
-        ls -la
+
+    - name: Pre-Install Android SDK Manager (CRITICAL SDK FIX)
+      run: |
+        # Manually downloading stable cmdline-tools to fix sdkmanager missing error
+        mkdir -p ~/.buildozer/android/platform
+        wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdline.zip
+        mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
+        unzip -q cmdline.zip -d ~/.buildozer/android/platform/android-sdk/cmdline-tools
+        mv ~/.buildozer/android/platform/android-sdk/cmdline-tools/cmdline-tools ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+        
+        # Pre-accepting SDK licenses
+        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n89354db274b065e119d62bfc40d48d65227d860d\nd56f5187479451e40a6137e7d6199bf9956d9e76" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        rm cmdline.zip
 
     - name: Build with Buildozer
       run: |
         buildozer init
         
-        # Configuration settings inject karna
+        # Standard configs inject karna
         sed -i 's/^title =.*/title = Hunting Bird/' buildozer.spec
         sed -i 's/^package.name =.*/package.name = huntingbird/' buildozer.spec
         sed -i 's/^package.domain =.*/package.domain = org.jmd/' buildozer.spec
         sed -i 's/^source.include_exts =.*/source.include_exts = py,png,jpg,jpeg,kv,atlas,mp3,wav,json/' buildozer.spec
         
-        # Android stable target settings
+        # Enforcing stable versions
         sed -i 's/^#\? \?android.api =.*/android.api = 33/' buildozer.spec
         sed -i 's/^#\? \?android.ndk =.*/android.ndk = 25b/' buildozer.spec
         sed -i 's/^#\? \?android.accept_sdk_license =.*/android.accept_sdk_license = True/' buildozer.spec
         
-        # SDK Licenses bypass script
-        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-        echo -e "\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n89354db274b065e119d62bfc40d48d65227d860d\nd56f5187479451e40a6137e7d6199bf9956d9e76" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        # Force pointing path to our manually installed sdkmanager
+        export PATH="$HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin:$PATH"
         
-        export PATH="/usr/bin:/usr/local/bin:$PATH"
-        
-        # Automatic build run
         buildozer android debug
 
     - name: Upload APK Artifact
