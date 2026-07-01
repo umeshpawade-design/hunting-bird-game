@@ -14,23 +14,24 @@ jobs:
 
     - name: Install Buildozer and All System Dependencies
       run: |
-        pip install --upgrade "buildozer<=1.5.0" Cython
-        # Yahan humne libtool, m4, aur autoconf ke missing macros ko fix karne ke liye packages badhaye hain
+        pip install --upgrade buildozer Cython
         sudo apt-get update
-        sudo apt-get install -y libffi-dev libssl-dev autoconf automake libtool m4 pkg-config zlib1g-dev openjdk-17-jdk build-essential
+        sudo apt-get install -y libffi-dev libssl-dev autoconf automake libtool m4 pkg-config zlib1g-dev openjdk-17-jdk build-essential git
 
-    - name: Silent Build APK
+    - name: Pre-Setup Python-for-Android & Build APK
       run: |
         export JAVA_HOME=$JAVA_HOME_17_X64
         if [ -f "capture_preview.py" ]; then cp capture_preview.py main.py; fi
         
-        # Macro errors aur gradle daemon errors ko disable karne ke flags
-        export GRADLE_OPTS="-Dorg.gradle.daemon=false"
+        # Missing folder ko pehle se clone karke set kar rahe hain
+        mkdir -p ~/.buildozer/android/platform/
+        git clone https://github.com/kivy/python-for-android.git ~/.buildozer/android/platform/python-for-android
         
-        # Pure environment ko refresh karke fresh start karenge
-        buildozer android clean
+        export GRADLE_OPTS="-Dorg.gradle.daemon=false"
+        export APP_ANDROID_ACCEPT_SDK_LICENSE="1"
+        
         buildozer android debug
-
+        
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
