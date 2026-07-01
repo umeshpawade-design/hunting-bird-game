@@ -12,6 +12,8 @@ package.domain = org.umeshpawade
 # (str) Source code directory
 source.dir = .
 
+version = 1.0.0
+
 # (list) Source files to include (let empty to include all the files)
 source.include_exts = py,png,jpg,jpeg,ttf,json,txt,bmp
 
