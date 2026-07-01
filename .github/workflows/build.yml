@@ -16,23 +16,11 @@ source.dir = .
 source.include_exts = py,png,jpg,jpeg,ttf,json,txt,bmp
 
 # (list) Application requirements
-# Yahan humne pygame aur kivy dono ko stable version par daal diya hai
+# Pygame and Kivy variants explicitly declared for Android compatibility
 requirements = python3, pygame==2.1.0, kivy, hostpython3
-
-# (str) Custom source folders for requirements
-# requirements.source.kivy = ../kivy
-
-# (str) Presplash of the application
-#presplash.filename = %(source.dir)s/data/presplash.png
-
-# (str) Icon of the application
-#icon.filename = %(source.dir)s/data/icon.png
 
 # (str) Supported orientations (one of landscape, sensorLandscape, portrait or all)
 orientation = landscape
-
-# (list) List of service to declare
-#services = NAME:ENTRYPOINT_TO_PY,NAME2:ENTRYPOINT_TO_PY
 
 #
 # Android specific
@@ -41,4 +29,20 @@ orientation = landscape
 # (bool) Indicate if the application should be fullscreen or not
 fullscreen = 1
 
-# (list) PermissionsNormally I can help with things like this, but I don't seem to have access to that content. You can try again or ask me for something else.
+# (int) Android API to use (API 33 is highly stable for Pygame on Android)
+android.api = 33
+
+# (int) Minimum API required
+android.minapi = 21
+
+# (str) Android NDK version to use
+android.ndk = 25b
+
+# (bool) Accept SDK license without prompting
+android.accept_sdk_license = True
+
+# (list) Permissions
+android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE
+
+# (str) Bootstrap to use (sdl2 is the core backend for pygame/kivy)
+android.bootstrap = sdl2
