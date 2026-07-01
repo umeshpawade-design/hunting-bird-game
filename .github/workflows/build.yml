@@ -5,35 +5,33 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
     - name: Install Buildozer and Dependencies
       run: |
         pip install --upgrade buildozer Cython
-        sudo apt-get install -y libffi-dev libssl-dev autoconf automake libtool pkg-config zlib1g-dev OpenJDK-17-jdk
+        sudo apt-get install -y libffi-dev libssl-dev autoconf automake libtool pkg-config zlib1g-dev openjdk-17-jdk
 
     - name: Fix Android SDK Manager & Build APK
       run: |
-        # Sahi Java environment ensure karna aur main.py setup karna
         export JAVA_HOME=$JAVA_HOME_17_X64
         if [ -f "capture_preview.py" ]; then cp capture_preview.py main.py; fi
         
-        # Buildozer ko bina prompt ke chalne ke liye aur sdkmanager license auto-accept karne ke liye
+        # Buildozer run
         yes | buildozer android debug --workers=1 || true
         
-        # Agar pehli baar mein break hua toh licenses accept karke dubara final run karenge
         if [ -d "$HOME/.buildozer/android/platform/android-sdk" ]; then
           yes | $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
         fi
         buildozer android debug --workers=1
 
     - name: Upload APK
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: game-apk
         path: bin/*.apk
