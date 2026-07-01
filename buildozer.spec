@@ -1,36 +1,48 @@
 [app]
+
+# (str) Title of your application
 title = Slingshot Empire
+
+# (str) Package name
 package.name = slingshotempire
-package.domain = com.slingshotempire.game
-source.dir = src
-source.include_exts = py,png,jpg,kv,atlas,ttf,ogg,wav,json
-version.regex = __version__ = ['\"](.*)['\"]
-version.filename = src/config.py
-requirements = python3,pygame
+
+# (str) Package domain (needed for android packaging)
+package.domain = org.umeshpawade
+
+# (str) Source code directory
+source.dir = .
+
+# (list) Source files to include (let empty to include all the files)
+source.include_exts = py,png,jpg,jpeg,ttf,json,txt,bmp
+
+# (list) Application requirements
+# Pygame-bootstrap standard requires specific sequence to build correctly
+requirements = python3, pygame==2.1.0, kivy==2.2.1, hostpython3
+
+# (str) Supported orientations (one of landscape, sensorLandscape, portrait or all)
 orientation = landscape
+
+#
+# Android specific
+#
+
+# (bool) Indicate if the application should be fullscreen or not
 fullscreen = 1
-android.api = 34
+
+# (int) Android API to use (API 33 is standard and highly stable for pygame)
+android.api = 33
+
+# (int) Minimum API required
 android.minapi = 21
+
+# (str) Android NDK version to use
 android.ndk = 25b
-android.sdk = 34
-android.arch = arm64-v8a, armeabi-v7a
-android.permissions = INTERNET, WAKE_LOCK, VIBRATE
 
-# AdMob configuration: replace these with your real AdMob App ID before release.
-# The value is read from the environment; set ADMOB_APP_ID in your build environment.
-android.meta_data = com.google.android.gms.ads.APPLICATION_ID=${ADMOB_APP_ID}
-
-android.min_sdk_version = 21
-android.target_sdk_version = 34
+# (bool) Explicitly force accept licenses inside buildozer engine
 android.accept_sdk_license = True
-android.entrypoint = org.kivy.android.PythonActivity
-android.apptheme = @android:style/Theme.NoTitleBar.Fullscreen
-p4a.local_recipes =
 
-# Optional: add a python-for-android AdMob recipe (e.g. kivmob/kivads) here.
-# For example, if you have a local recipe folder:
-# p4a.local_recipes = ./recipes
+# (list) Permissions
+android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE
 
-[buildozer]
-log_level = 2
-warn_on_root = 1
+# (str) Core bootstrap layer for Python/Pygame apps
+android.bootstrap = sdl2
