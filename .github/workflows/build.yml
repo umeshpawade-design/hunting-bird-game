@@ -1,48 +1,43 @@
-[app]
+name: Build Android APK
+on: [push, workflow_dispatch]
 
-# (str) Title of your application
-title = Slingshot Empire
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
 
-# (str) Package name
-package.name = slingshotempire
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
 
-# (str) Package domain (needed for android packaging)
-package.domain = org.umeshpawade
+    - name: Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libffi-dev libssl-dev autoconf automake libtool m4 pkg-config zlib1g-dev openjdk-17-jdk build-essential git ccache overlayroot
 
-# (str) Source code directory
-source.dir = .
+    - name: Install Buildozer & Cython
+      run: |
+        pip install --upgrade "buildozer<=1.5.0" Cython==0.29.36
 
-# (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,jpeg,ttf,json,txt,bmp
+    - name: Bypass Android Licenses & Build
+      run: |
+        export JAVA_HOME=$JAVA_HOME_17_X64
+        if [ -f "capture_preview.py" ]; then cp capture_preview.py main.py; fi
+        
+        # Buildozer commands ko block hone se bachane ke liye environment variables
+        export APP_ANDROID_ACCEPT_SDK_LICENSE="1"
+        export GRADLE_OPTS="-Dorg.gradle.daemon=false"
+        
+        # Android tools settings jo prompt ko skip karegi
+        mkdir -p ~/.android && touch "$HOME/.android/repositories.cfg"
+        
+        # Silent automation logic jo terminal break nahi hone degi
+        buildozer android debug
 
-# (list) Application requirements
-# Pygame and Kivy variants explicitly declared for Android compatibility
-requirements = python3, pygame==2.1.0, kivy, hostpython3
-
-# (str) Supported orientations (one of landscape, sensorLandscape, portrait or all)
-orientation = landscape
-
-#
-# Android specific
-#
-
-# (bool) Indicate if the application should be fullscreen or not
-fullscreen = 1
-
-# (int) Android API to use (API 33 is highly stable for Pygame on Android)
-android.api = 33
-
-# (int) Minimum API required
-android.minapi = 21
-
-# (str) Android NDK version to use
-android.ndk = 25b
-
-# (bool) Accept SDK license without prompting
-android.accept_sdk_license = True
-
-# (list) Permissions
-android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE
-
-# (str) Bootstrap to use (sdl2 is the core backend for pygame/kivy)
-android.bootstrap = sdl2
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: game-apk
+        path: bin/*.apk
