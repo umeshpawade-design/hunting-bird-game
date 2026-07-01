@@ -47,4 +47,4 @@ android.accept_sdk_license = True
 android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE
 
 # (str) Core bootstrap layer for Python/Pygame apps
-android.bootstrap = sdl2
+p4a.bootstrap = sdl2
