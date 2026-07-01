@@ -1,0 +1,13 @@
+{
+  "Player 1": {
+    "current_level": 1,
+    "score": 0,
+    "coins": 0,
+    "lives": 15,
+    "max_hp": 100,
+    "current_hp": 100,
+    "plasma_qty": 5,
+    "ballista_qty": 5,
+    "difficulty": "MEDIUM"
+  }
+}

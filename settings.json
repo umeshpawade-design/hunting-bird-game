@@ -1,0 +1,15 @@
+{
+  "enable_parallax": true,
+  "enable_shadows": true,
+  "enable_perspective": true,
+  "enable_vibration": true,
+  "enable_ads": false,
+  "enable_particles": true,
+  "enable_glow": true,
+  "target_fps": 60,
+  "show_fps": false,
+  "master_volume": 0.8,
+  "music_volume": 0.6,
+  "sfx_volume": 0.9,
+  "muted": false
+}
