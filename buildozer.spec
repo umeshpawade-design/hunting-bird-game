@@ -48,3 +48,6 @@ android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE
 
 # (str) Core bootstrap layer for Python/Pygame apps
 p4a.bootstrap = sdl2
+
+android.archs = arm64-v8a
+requirements = python3,pygame==2.5.2,kivy
