@@ -12,20 +12,23 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install Buildozer and Dependencies
+    - name: Install Buildozer and All System Dependencies
       run: |
         pip install --upgrade "buildozer<=1.5.0" Cython
-        sudo apt-get install -y libffi-dev libssl-dev autoconf automake libtool pkg-config zlib1g-dev openjdk-17-jdk
+        # Yahan humne libtool, m4, aur autoconf ke missing macros ko fix karne ke liye packages badhaye hain
+        sudo apt-get update
+        sudo apt-get install -y libffi-dev libssl-dev autoconf automake libtool m4 pkg-config zlib1g-dev openjdk-17-jdk build-essential
 
     - name: Silent Build APK
       run: |
         export JAVA_HOME=$JAVA_HOME_17_X64
         if [ -f "capture_preview.py" ]; then cp capture_preview.py main.py; fi
         
-        # Automatic license acceptance flag directly passed into terminal environment
+        # Macro errors aur gradle daemon errors ko disable karne ke flags
         export GRADLE_OPTS="-Dorg.gradle.daemon=false"
         
-        # Bina prompt ke build shuru karenge
+        # Pure environment ko refresh karke fresh start karenge
+        buildozer android clean
         buildozer android debug
 
     - name: Upload APK
