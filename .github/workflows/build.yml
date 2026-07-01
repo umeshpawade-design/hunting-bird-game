@@ -14,10 +14,10 @@ jobs:
     - name: Install System Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libffi-dev libssl-dev autoconf automake libtool m4 pkg-config zlib1g-dev openjdk-17-jdk build-essential git ccache overlayroot libltdl-dev
+        sudo apt-get install -y libffi-dev libssl-dev autoconf automake libtool m4 pkg-config zlib1g-dev openjdk-17-jdk build-essential git ccache overlayroot libltdl-dev libharfbuzz-dev libfreetype6-dev libsdl2-ttf-dev
     - name: Install Buildozer & Cython
       run: |
-        pip install --upgrade "buildozer<=1.5.0" Cython==0.29.36
+        pip install --upgrade buildozer cython virtualenv
     - name: Bypass Android Licenses & Build
       run: |
         export JAVA_HOME=$JAVA_HOME_17_X64
@@ -25,7 +25,7 @@ jobs:
         export APP_ANDROID_ACCEPT_SDK_LICENSE="1"
         export GRADLE_OPTS="-Dorg.gradle.daemon=false"
         mkdir -p ~/.android && touch "$HOME/.android/repositories.cfg"
-        buildozer android debug
+        buildozer android debug -v
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
