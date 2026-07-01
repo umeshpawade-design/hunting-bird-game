@@ -14,23 +14,19 @@ jobs:
 
     - name: Install Buildozer and Dependencies
       run: |
-        pip install --upgrade buildozer Cython
+        pip install --upgrade "buildozer<=1.5.0" Cython
         sudo apt-get install -y libffi-dev libssl-dev autoconf automake libtool pkg-config zlib1g-dev openjdk-17-jdk
 
-    - name: Auto Accept Android Licenses & Build APK
+    - name: Silent Build APK
       run: |
         export JAVA_HOME=$JAVA_HOME_17_X64
         if [ -f "capture_preview.py" ]; then cp capture_preview.py main.py; fi
         
-        # Buildozer directory pehle hi create kar rahe hain taaki tools manually accept ho sakein
-        mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin || true
+        # Automatic license acceptance flag directly passed into terminal environment
+        export GRADLE_OPTS="-Dorg.gradle.daemon=false"
         
-        # Sabse zaroori step: Pehle se hi saare android licenses ko yes karke bypass karna
-        mkdir -p "$HOME/.android" && touch "$HOME/.android/repositories.cfg"
-        
-        # Buildozer ko non-interactive way mein chalayenge jisse license prompt block na ho
-        export APP_ANDROID_ACCEPT_SDK_LICENSE="1"
-        yes | buildozer android debug --workers=1
+        # Bina prompt ke build shuru karenge
+        buildozer android debug
 
     - name: Upload APK
       uses: actions/upload-artifact@v4
