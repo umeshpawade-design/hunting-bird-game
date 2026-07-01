@@ -25,7 +25,7 @@ jobs:
         export APP_ANDROID_ACCEPT_SDK_LICENSE="1"
         export GRADLE_OPTS="-Dorg.gradle.daemon=false"
         mkdir -p ~/.android && touch "$HOME/.android/repositories.cfg"
-        buildozer android debug -v
+        buildozer android debug
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
